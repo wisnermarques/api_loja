@@ -7,6 +7,7 @@ class Cliente(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     telefone = models.CharField(max_length=15)
     endereco = models.TextField()
+    nome = models.TextField()
 
     def __str__(self):
         return self.user.username
