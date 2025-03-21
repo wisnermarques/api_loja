@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from rest_framework.permissions import AllowAny
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
@@ -8,7 +11,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets, permissions
 from .models import Cliente, Produto, Venda, ItemDaVenda
-from .serializers import ClienteSerializer, ProdutoSerializer, VendaSerializer, ItemDaVendaSerializer
+from .serializers import ClienteSerializer, ProdutoSerializer, RegistroSerializer, VendaSerializer, ItemDaVendaSerializer
+from rest_framework import serializers
+from .models import Cliente
 
 
 class ClienteViewSet(viewsets.ModelViewSet):
@@ -79,3 +84,17 @@ class ClientePorUsernameView(APIView):
             return Response({'erro': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
         except Cliente.DoesNotExist:
             return Response({'erro': 'Cliente não encontrado para este usuário'}, status=status.HTTP_404_NOT_FOUND)
+        
+class RegistroView(APIView):
+    permission_classes = [AllowAny]  # Permitir acesso a qualquer um
+
+    @method_decorator(csrf_exempt)  # Desativa a proteção CSRF
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request):
+        serializer = RegistroSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"mensagem": "Cliente cadastrado com sucesso!"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

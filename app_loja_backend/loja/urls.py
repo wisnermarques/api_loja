@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ClientePorUsernameView, ClienteViewSet, ProdutoViewSet, VendaViewSet, ItemDaVendaViewSet, VendasPorClienteView
+from .views import ClientePorUsernameView, ClienteViewSet, ProdutoViewSet, VendaViewSet, ItemDaVendaViewSet, VendasPorClienteView, RegistroView
 
 router = DefaultRouter()
 router.register(r'clientes', ClienteViewSet)
@@ -12,4 +12,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('vendas/cliente/<int:cliente_id>/', VendasPorClienteView.as_view(), name='vendas-por-cliente'),  # Adiciona a URL para as vendas por cliente
     path('clientes/username/<str:username>/', ClientePorUsernameView.as_view(), name='cliente-por-username'),
+    path('registrar/', RegistroView.as_view(), name='registro'),
 ]

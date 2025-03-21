@@ -1,10 +1,14 @@
 from rest_framework import serializers
 from .models import Cliente, Produto, Venda, ItemDaVenda
+from django.contrib.auth.models import User
 
 class ClienteSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source="user.username", read_only=True)
+
     class Meta:
         model = Cliente
         fields = '__all__'
+
 
 class ProdutoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,4 +48,24 @@ class VendaSerializer(serializers.ModelSerializer):
         response = super().to_representation(instance)
         response['itens'] = ItemDaVendaSerializer(instance.itens.all(), many=True).data
         return response
+    
 
+class RegistroSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, min_length=6)
+
+    class Meta:
+        model = Cliente
+        fields = ['username', 'password', 'telefone', 'endereco']
+
+    def create(self, validated_data):
+        username = validated_data.pop('username')
+        password = validated_data.pop('password')
+
+        # Criar o usuário
+        user = User.objects.create_user(username=username, password=password)
+
+        # Criar o cliente associado ao usuário
+        cliente = Cliente.objects.create(user=user, **validated_data)
+
+        return cliente
