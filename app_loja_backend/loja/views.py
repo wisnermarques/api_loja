@@ -57,8 +57,8 @@ class VendasPorClienteView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, cliente_id, format=None):
-        # Filtra as vendas do cliente
-        vendas = Venda.objects.filter(cliente_id=cliente_id)
+        # Filtra as vendas do cliente e ordena pela data em ordem decrescente
+        vendas = Venda.objects.filter(cliente_id=cliente_id).order_by('-data_venda')
 
         # Aplica a paginação
         paginator = VendaPagination()
@@ -70,6 +70,7 @@ class VendasPorClienteView(APIView):
         # Caso não haja paginação
         serializer = VendaSerializer(vendas, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class ClientePorUsernameView(APIView):
     permission_classes = [IsAuthenticated]
